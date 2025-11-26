@@ -71,6 +71,22 @@ def is_already_installed(text: str) -> bool:
     return any(sig in normalized for sig in signals)
 
 
+def extract_package_id(command: str) -> str:
+    match = re.search(r"--id\s+([\\w\\.\\-]+)", command)
+    return match.group(1) if match else ""
+
+
+def check_app_installed(app_config: dict) -> bool:
+    pkg_id = extract_package_id(app_config.get("command", ""))
+    if not pkg_id:
+        return False
+    cmd = f"winget list --id {pkg_id} --exact --source winget"
+    code, output = run_powershell(cmd, timeout=120)
+    if is_already_installed(output):
+        return True
+    return pkg_id.lower() in output.lower() or app_config.get("name", "").lower() in output.lower()
+
+
 def sse(event: str, data: dict) -> str:
     payload = json.dumps(data, ensure_ascii=False)
     return f"event: {event}\ndata: {payload}\n\n"
@@ -215,6 +231,23 @@ def install_app(app_id: int):
 @app.get("/api/health")
 def health():
     return jsonify({"status": "ok"})
+
+
+@app.get("/api/check-installations")
+def check_installations():
+    apps = store.list_apps()
+    results = []
+    for app_cfg in apps:
+        installed = check_app_installed(app_cfg)
+        store.mark_installed(app_cfg["id"], installed)
+        results.append(
+            {
+                "id": app_cfg["id"],
+                "name": app_cfg["name"],
+                "installed": installed,
+            }
+        )
+    return jsonify(results)
 
 
 if __name__ == "__main__":

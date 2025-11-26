@@ -344,6 +344,29 @@ h1 {
   background: rgba(255, 123, 123, 0.12);
 }
 
+.status-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 12px;
+  text-transform: uppercase;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.status-badge.success {
+  color: var(--success);
+  border-color: rgba(122, 230, 183, 0.4);
+}
+
+.status-badge.danger {
+  color: var(--danger);
+  border-color: rgba(255, 123, 123, 0.4);
+}
+
 .progress {
   margin-top: 10px;
   background: rgba(255, 255, 255, 0.06);

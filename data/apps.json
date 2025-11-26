@@ -5,7 +5,7 @@
     "command": "winget install --id Git.Git -e --source winget --accept-package-agreements --accept-source-agreements --silent",
     "description": "Cliente Git oficial por winget para clonar y contribuir a repos (silencioso).",
     "category": "Control de versiones",
-    "installed": true
+    "installed": false
   },
   {
     "id": 2,
@@ -21,6 +21,70 @@
     "command": "winget install --id 7zip.7zip -e --source winget --accept-package-agreements --accept-source-agreements --silent",
     "description": "Compresor y descompresor rápido (silencioso).",
     "category": "Utilidades",
+    "installed": false
+  },
+  {
+    "id": 4,
+    "name": "Google Chrome",
+    "command": "winget install --id Google.Chrome -e --source winget --accept-package-agreements --accept-source-agreements --silent",
+    "description": "Navegador Chrome estable.",
+    "category": "Navegadores",
+    "installed": false
+  },
+  {
+    "id": 5,
+    "name": "Google Chrome Dev",
+    "command": "winget install --id Google.Chrome.Dev -e --source winget --accept-package-agreements --accept-source-agreements --silent",
+    "description": "Canal Dev de Chrome para probar novedades.",
+    "category": "Navegadores",
+    "installed": false
+  },
+  {
+    "id": 6,
+    "name": "Firefox",
+    "command": "winget install --id Mozilla.Firefox -e --source winget --accept-package-agreements --accept-source-agreements --silent",
+    "description": "Navegador Firefox estable.",
+    "category": "Navegadores",
+    "installed": false
+  },
+  {
+    "id": 7,
+    "name": "Brave",
+    "command": "winget install --id Brave.Brave -e --source winget --accept-package-agreements --accept-source-agreements --silent",
+    "description": "Navegador Brave con bloqueador integrado.",
+    "category": "Navegadores",
+    "installed": false
+  },
+  {
+    "id": 8,
+    "name": "ChatGPT (Desktop)",
+    "command": "winget install --id j178.ChatGPT -e --source winget --accept-package-agreements --accept-source-agreements --silent",
+    "description": "Cliente ChatGPT de escritorio (winget).",
+    "category": "IA",
+    "installed": false
+  },
+  {
+    "id": 9,
+    "name": "Perplexity",
+    "command": "winget install --id XP8JNQFBQH6PVF -e --source msstore --accept-package-agreements --accept-source-agreements",
+    "description": "Perplexity AI desde Microsoft Store.",
+    "category": "IA",
+    "installed": false
+  },
+  {
+    "id": 10,
+    "name": "Perplexity Comet",
+    "command": "winget install --id Perplexity.Comet -e --source winget --accept-package-agreements --accept-source-agreements --silent",
+    "description": "Comet por Perplexity (winget).",
+    "category": "IA",
+    "installed": false
+  },
+  {
+    "id": 11,
+    "name": "OBS Studio",
+    "command": "winget install --id OBSProject.OBSStudio -e --source winget --accept-package-agreements --accept-source-agreements --silent",
+    "description": "OBS Studio para grabar y hacer streaming.",
+    "category": "Multimedia",
     "installed": false
   }
 ]

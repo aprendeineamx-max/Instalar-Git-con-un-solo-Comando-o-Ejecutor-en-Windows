@@ -1,6 +1,7 @@
 const api = {
   apps: "/api/apps",
   add: "/api/apps",
+  check: "/api/check-installations",
   installStream: (id) => `/api/install/${id}/stream?ts=${Date.now()}`,
 };
 
@@ -30,6 +31,11 @@ async function fetchApps() {
   renderCards();
 }
 
+async function refreshAll() {
+  await fetchApps();
+  await checkInstallations();
+}
+
 function renderCards() {
   const query = (searchInput.value || "").toLowerCase();
   const filtered = apps.filter(
@@ -53,18 +59,18 @@ function renderCards() {
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
+      ${
+        state.state === "done"
+          ? `<div class="status-badge success">Instalado</div>`
+          : state.state === "error"
+          ? `<div class="status-badge danger">Fallo</div>`
+          : ""
+      }
       <div class="pill">${app.category || "General"}</div>
       <h3>${app.name}</h3>
       <p>${app.description || "Sin descripcion"}</p>
       <div class="command">${app.command}</div>
       <div class="actions">
-        ${
-          state.state === "done"
-            ? `<div class="status-pill success">Instalado</div>`
-            : state.state === "error"
-            ? `<div class="status-pill danger">Fallo</div>`
-            : ""
-        }
         <button class="btn primary" data-install="${app.id}" ${
           state.state === "installing" ? "disabled" : ""
         }>
@@ -223,14 +229,36 @@ navLinks.forEach((link) => {
 });
 
 searchInput.addEventListener("input", renderCards);
-document.getElementById("refresh").addEventListener("click", fetchApps);
+document.getElementById("refresh").addEventListener("click", refreshAll);
 document.getElementById("scrollNew").addEventListener("click", () => {
   document.getElementById("nuevo").scrollIntoView({ behavior: "smooth" });
 });
 
-fetchApps();
+refreshAll();
 
 function setStatus(id, state, progress) {
   statusMap.set(id, { state, progress });
   renderCards();
+}
+
+async function checkInstallations() {
+  try {
+    const res = await fetch(api.check);
+    const data = await res.json();
+    data.forEach((entry) => {
+      const installed = !!entry.installed;
+      apps = apps.map((app) =>
+        app.id === entry.id ? { ...app, installed } : app
+      );
+      statusMap.set(entry.id, {
+        state: installed ? "done" : "idle",
+        progress: installed ? 100 : 0,
+      });
+    });
+    renderCards();
+    showToast("Catalogo sincronizado con apps instaladas");
+  } catch (err) {
+    console.error(err);
+    showToast("No se pudo verificar instalaciones");
+  }
 }
