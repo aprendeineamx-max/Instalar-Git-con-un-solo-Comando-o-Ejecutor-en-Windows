@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panel de Instalación Rápida</title>
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-icon">⇄</div>
+          <div>
+            <p class="brand-title">Installer</p>
+            <p class="brand-subtitle">Operador</p>
+          </div>
+        </div>
+        <nav>
+          <a class="nav-link active" href="#">Dashboard</a>
+          <a class="nav-link" href="#apps">Aplicaciones</a>
+          <a class="nav-link" href="#nuevo">Agregar app</a>
+          <a class="nav-link" href="#logs">Ejecuciones</a>
+        </nav>
+        <div class="nav-foot">
+          <p class="tip-title">Tip</p>
+          <p class="tip-body">
+            Usa comandos winget o choco para instalaciones silenciosas.
+          </p>
+        </div>
+      </aside>
+
+      <main class="content">
+        <header class="hero">
+          <div>
+            <p class="eyebrow">Panel inspirado en WordPress</p>
+            <h1>Instala herramientas con un clic</h1>
+            <p class="lead">
+              Orquesta instalaciones por PowerShell con un dashboard rápido,
+              minimal y extensible.
+            </p>
+            <div class="hero-actions">
+              <button id="refresh" class="btn primary">Refrescar apps</button>
+              <button id="scrollNew" class="btn ghost">Agregar nueva</button>
+            </div>
+          </div>
+          <div class="hero-card">
+            <p class="label">Listo para comenzar</p>
+            <p class="hero-number" id="appCount">0</p>
+            <p class="muted">apps configuradas</p>
+            <div class="hero-indicator">
+              <span class="dot success"></span> Servicio activo
+            </div>
+          </div>
+        </header>
+
+        <section id="apps" class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Catálogo</p>
+              <h2>Aplicaciones instalables</h2>
+            </div>
+            <div class="filters">
+              <input
+                type="search"
+                id="search"
+                placeholder="Buscar por nombre o categoría..."
+              />
+            </div>
+          </div>
+          <div id="appsGrid" class="cards"></div>
+        </section>
+
+        <section id="nuevo" class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Catálogo</p>
+              <h2>Agregar aplicación</h2>
+              <p class="muted">
+                Define nombre, categoría y comando de instalación para ampliar el catálogo.
+              </p>
+            </div>
+          </div>
+          <form id="addForm" class="form">
+            <div class="field">
+              <label>Nombre *</label>
+              <input name="name" required placeholder="Git, Node, Docker..." />
+            </div>
+            <div class="field">
+              <label>Categoría</label>
+              <input name="category" placeholder="DevOps, IDE, Data..." />
+            </div>
+            <div class="field">
+              <label>Descripción</label>
+              <textarea
+                name="description"
+                rows="2"
+                placeholder="Breve nota para el operador"
+              ></textarea>
+            </div>
+            <div class="field">
+              <label>Comando de instalación *</label>
+              <textarea
+                name="command"
+                rows="3"
+                required
+                placeholder="winget install --id Git.Git -e --source winget"
+              ></textarea>
+              <p class="hint">
+                Se ejecuta en PowerShell con ExecutionPolicy Bypass. Usa winget/choco/msiexec o scripts propios.
+              </p>
+            </div>
+            <button class="btn primary" type="submit">Guardar en catálogo</button>
+            <p class="note">
+              Seguridad: solo agregues comandos de fuentes confiables. El backend ejecuta directamente lo que definas.
+            </p>
+          </form>
+        </section>
+
+        <section id="logs" class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Ejecuciones</p>
+              <h2>Historial rápido</h2>
+            </div>
+          </div>
+          <div id="logList" class="logs"></div>
+        </section>
+      </main>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
