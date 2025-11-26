@@ -20,15 +20,19 @@ class AppsStore:
                     "id": 1,
                     "name": "Git",
                     "command": "winget install --id Git.Git -e --source winget --accept-package-agreements --accept-source-agreements --silent",
-                    "description": "Cliente Git oficial por winget para clonar y contribuir a repos (instalación silenciosa).",
+                    "description": "Cliente Git oficial por winget para clonar y contribuir a repos (instalacion silenciosa).",
                     "category": "Control de versiones",
+                    "installed": False,
                 }
             ]
             self._write(default)
 
     def _read(self) -> List[Dict]:
         with self.json_path.open("r", encoding="utf-8") as f:
-            return json.load(f)
+            data = json.load(f)
+        for app in data:
+            app.setdefault("installed", False)
+        return data
 
     def _write(self, data: List[Dict]) -> None:
         with self.json_path.open("w", encoding="utf-8") as f:
@@ -48,6 +52,7 @@ class AppsStore:
                 "command": command.strip(),
                 "description": description.strip(),
                 "category": category.strip() or "Otros",
+                "installed": False,
             }
             apps.append(new_app)
             self._write(apps)
@@ -57,3 +62,13 @@ class AppsStore:
         with self._lock:
             apps = self._read()
             return next((app for app in apps if app.get("id") == app_id), None)
+
+    def mark_installed(self, app_id: int, installed: bool) -> Optional[Dict]:
+        with self._lock:
+            apps = self._read()
+            target = next((app for app in apps if app.get("id") == app_id), None)
+            if not target:
+                return None
+            target["installed"] = installed
+            self._write(apps)
+            return target

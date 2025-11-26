@@ -4,20 +4,23 @@
     "name": "Git",
     "command": "winget install --id Git.Git -e --source winget --accept-package-agreements --accept-source-agreements --silent",
     "description": "Cliente Git oficial por winget para clonar y contribuir a repos (silencioso).",
-    "category": "Control de versiones"
+    "category": "Control de versiones",
+    "installed": true
   },
   {
     "id": 2,
     "name": "Visual Studio Code",
     "command": "winget install --id Microsoft.VisualStudioCode -e --source winget --accept-package-agreements --accept-source-agreements --silent",
     "description": "Editor ligero listo para extensiones (silencioso).",
-    "category": "IDE"
+    "category": "IDE",
+    "installed": false
   },
   {
     "id": 3,
     "name": "7zip",
     "command": "winget install --id 7zip.7zip -e --source winget --accept-package-agreements --accept-source-agreements --silent",
     "description": "Compresor y descompresor rápido (silencioso).",
-    "category": "Utilidades"
+    "category": "Utilidades",
+    "installed": false
   }
 ]

@@ -1,7 +1,7 @@
 const api = {
   apps: "/api/apps",
   add: "/api/apps",
-  install: (id) => `/api/install/${id}`,
+  installStream: (id) => `/api/install/${id}/stream?ts=${Date.now()}`,
 };
 
 const toastEl = document.getElementById("toast");
@@ -14,9 +14,8 @@ const navLinks = document.querySelectorAll(".nav-link");
 
 let apps = [];
 let logs = [];
-let installingIds = new Set();
 const statusMap = new Map(); // id -> {state, progress}
-const progressTimers = new Map();
+const liveLogs = new Map(); // id -> text
 
 function showToast(message) {
   toastEl.textContent = message;
@@ -47,20 +46,23 @@ function renderCards() {
   }
 
   filtered.forEach((app) => {
-    const state = statusMap.get(app.id) || { state: "idle", progress: 0 };
+    const defaultState = app.installed
+      ? { state: "done", progress: 100 }
+      : { state: "idle", progress: 0 };
+    const state = statusMap.get(app.id) || defaultState;
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
       <div class="pill">${app.category || "General"}</div>
       <h3>${app.name}</h3>
-      <p>${app.description || "Sin descripción"}</p>
+      <p>${app.description || "Sin descripcion"}</p>
       <div class="command">${app.command}</div>
       <div class="actions">
         ${
           state.state === "done"
             ? `<div class="status-pill success">Instalado</div>`
             : state.state === "error"
-            ? `<div class="status-pill danger">Falló</div>`
+            ? `<div class="status-pill danger">Fallo</div>`
             : ""
         }
         <button class="btn primary" data-install="${app.id}" ${
@@ -84,7 +86,7 @@ function renderCards() {
           : state.state === "done"
           ? `<div class="progress complete">
               <div class="progress-bar" style="width:100%"></div>
-              <span class="progress-text">100% • Instalado</span>
+              <span class="progress-text">100% Instalado</span>
             </div>`
           : ""
       }
@@ -97,43 +99,81 @@ function renderCards() {
   });
 }
 
-async function installApp(app) {
-  installingIds.add(app.id);
+function appendLiveLog(appId, line) {
+  const previous = liveLogs.get(appId) || "";
+  const next = previous ? `${previous}\n${line}` : line;
+  // Client-side cap to avoid huge DOM content if server cap changes.
+  liveLogs.set(appId, next.slice(-12000));
+}
+
+function installApp(app) {
+  if (statusMap.get(app.id)?.state === "installing") return;
   setStatus(app.id, "installing", 1);
+  liveLogs.set(app.id, "");
   showToast(`Ejecutando ${app.name}...`);
-  try {
-    const res = await fetch(api.install(app.id), { method: "POST" });
-    const data = await res.json();
+
+  const es = new EventSource(api.installStream(app.id));
+
+  es.addEventListener("progress", (evt) => {
+    const data = JSON.parse(evt.data || "{}");
+    if (typeof data.progress === "number") {
+      setStatus(app.id, "installing", data.progress);
+    }
+  });
+
+  es.addEventListener("log", (evt) => {
+    const data = JSON.parse(evt.data || "{}");
+    if (data.line) appendLiveLog(app.id, data.line);
+  });
+
+  es.addEventListener("truncate", (evt) => {
+    const data = JSON.parse(evt.data || "{}");
+    appendLiveLog(app.id, `--- salida truncada a ${data.limit} chars ---`);
+  });
+
+  es.addEventListener("done", (evt) => {
+    const data = JSON.parse(evt.data || "{}");
+    const status = data.status || "error";
+    const output =
+      data.output ||
+      liveLogs.get(app.id) ||
+      "Sin salida de la instalacion (modo silencioso).";
     logs.unshift({
       id: Date.now(),
       app: app.name,
-      status: data.status,
+      status,
       command: app.command,
-      output: data.output || "",
+      output,
       exit: data.exit_code,
     });
     renderLogs();
-    const status = data.status === "ok" ? "✔️" : "⚠️";
-    showToast(`${status} ${app.name}: ${data.status}`);
     setStatus(
       app.id,
-      data.status === "ok" ? "done" : "error",
-      data.status === "ok" ? 100 : 0
+      status === "ok" ? "done" : "error",
+      status === "ok" ? 100 : 0
     );
-  } catch (err) {
-    console.error(err);
-    showToast("Error al instalar");
+    showToast(`${status === "ok" ? "Listo" : "Fallo"} ${app.name}`);
+    es.close();
+    fetchApps(); // refresh installed flag persisted
+    liveLogs.delete(app.id);
+  });
+
+  es.addEventListener("start", () => {
+    setStatus(app.id, "installing", 1);
+  });
+
+  es.onerror = () => {
+    showToast("Error recibiendo progreso");
     setStatus(app.id, "error", 0);
-  } finally {
-    installingIds.delete(app.id);
-  }
+    es.close();
+  };
 }
 
 function renderLogs() {
   logList.innerHTML = "";
   if (!logs.length) {
     logList.innerHTML =
-      '<p class="muted">Sin ejecuciones aún. Instala algo para ver el historial.</p>';
+      '<p class="muted">Sin ejecuciones aun. Instala algo para ver el historial.</p>';
     return;
   }
   logs.slice(0, 6).forEach((log) => {
@@ -146,7 +186,7 @@ function renderLogs() {
         <span class="muted">Exit ${log.exit}</span>
       </header>
       <div class="command">${log.command}</div>
-      <pre class="muted" style="white-space: pre-wrap;">${log.output.trim().slice(0, 2000) || "Sin salida"}</pre>
+      <pre class="muted" style="white-space: pre-wrap;">${(log.output || "").trim() || "Sin salida"}</pre>
     `;
     logList.appendChild(item);
   });
@@ -192,28 +232,5 @@ fetchApps();
 
 function setStatus(id, state, progress) {
   statusMap.set(id, { state, progress });
-  if (state === "installing") {
-    startProgress(id);
-  } else {
-    stopProgress(id);
-  }
   renderCards();
-}
-
-function startProgress(id) {
-  stopProgress(id);
-  let current = statusMap.get(id)?.progress || 1;
-  const timer = setInterval(() => {
-    current = Math.min(current + Math.random() * 8, 90);
-    statusMap.set(id, { state: "installing", progress: current });
-    renderCards();
-  }, 600);
-  progressTimers.set(id, timer);
-}
-
-function stopProgress(id) {
-  if (progressTimers.has(id)) {
-    clearInterval(progressTimers.get(id));
-    progressTimers.delete(id);
-  }
 }
