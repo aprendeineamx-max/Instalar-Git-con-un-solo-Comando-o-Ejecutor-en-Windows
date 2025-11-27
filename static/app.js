@@ -3,6 +3,7 @@ const api = {
   add: "/api/apps",
   check: "/api/check-installations",
   installStream: (id) => `/api/install/${id}/stream?ts=${Date.now()}`,
+  open: (id) => `/api/open/${id}`,
 };
 
 const toastEl = document.getElementById("toast");
@@ -64,14 +65,16 @@ function renderCards() {
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
-      ${
-        state.state === "done"
-          ? `<div class="status-badge success">Instalado</div>`
-          : state.state === "error"
-          ? `<div class="status-badge danger">Fallo</div>`
-          : ""
-      }
-      <div class="pill">${app.category || "General"}</div>
+      <div class="card-top">
+        <div class="pill">${app.category || "General"}</div>
+        ${
+          state.state === "done"
+            ? `<div class="status-badge success">Instalado</div>`
+            : state.state === "error"
+            ? `<div class="status-badge danger">Fallo</div>`
+            : ""
+        }
+      </div>
       <h3>${app.name}</h3>
       <p>${app.description || "Sin descripcion"}</p>
       <div class="command">${app.command}</div>
@@ -87,6 +90,11 @@ function renderCards() {
               : "Instalar"
           }
         </button>
+        ${
+          state.state === "done"
+            ? `<button class="btn ghost" data-open="${app.id}">Abrir</button>`
+            : ""
+        }
       </div>
       ${
         state.state === "installing"
@@ -107,6 +115,10 @@ function renderCards() {
     card.querySelector("[data-install]").addEventListener("click", () =>
       installApp(app)
     );
+    const openBtn = card.querySelector("[data-open]");
+    if (openBtn) {
+      openBtn.addEventListener("click", () => openApp(app));
+    }
   });
 }
 
@@ -266,5 +278,20 @@ async function checkInstallations() {
   } catch (err) {
     console.error(err);
     showToast("No se pudo verificar instalaciones");
+  }
+}
+
+async function openApp(app) {
+  try {
+    const res = await fetch(api.open(app.id), { method: "POST" });
+    const data = await res.json();
+    if (res.ok && data.status === "ok") {
+      showToast(`Abriendo ${app.name}...`);
+    } else {
+      showToast(data.error || data.output || "No se pudo abrir");
+    }
+  } catch (err) {
+    console.error(err);
+    showToast("No se pudo abrir");
   }
 }

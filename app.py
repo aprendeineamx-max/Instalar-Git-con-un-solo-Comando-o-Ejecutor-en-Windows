@@ -110,6 +110,20 @@ def check_app_installed(app_config: dict) -> bool:
     return code == 0
 
 
+@app.post("/api/open/<int:app_id>")
+def open_app(app_id: int):
+    app_config = store.get_app(app_id)
+    if not app_config:
+        return jsonify({"error": "Aplicacion no encontrada."}), 404
+    launch_cmd = app_config.get("launch") or app_config.get("name")
+    if not launch_cmd:
+        return jsonify({"error": "No hay comando de apertura definido."}), 400
+    # use Start-Process so UI returns fast
+    code, output = run_powershell(f'Start-Process "{launch_cmd}"')
+    status = "ok" if code == 0 else "error"
+    return jsonify({"status": status, "exit_code": code, "output": output})
+
+
 def sse(event: str, data: dict) -> str:
     payload = json.dumps(data, ensure_ascii=False)
     return f"event: {event}\ndata: {payload}\n\n"
@@ -149,6 +163,7 @@ def add_app():
     command = (payload.get("command") or "").strip()
     description = (payload.get("description") or "").strip()
     category = (payload.get("category") or "").strip() or "Otros"
+    launch = (payload.get("launch") or "").strip()
 
     if not name or not command:
         return (
@@ -161,6 +176,7 @@ def add_app():
         command=command,
         description=description,
         category=category,
+        launch=launch,
     )
     return jsonify(new_app), 201
 

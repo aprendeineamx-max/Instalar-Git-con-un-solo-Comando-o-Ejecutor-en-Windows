@@ -23,6 +23,7 @@ class AppsStore:
                     "description": "Cliente Git oficial por winget para clonar y contribuir a repos (instalacion silenciosa).",
                     "category": "Control de versiones",
                     "installed": False,
+                    "launch": "C:\\Program Files\\Git\\git-bash.exe",
                 }
             ]
             self._write(default)
@@ -42,7 +43,7 @@ class AppsStore:
         with self._lock:
             return self._read()
 
-    def add_app(self, name: str, command: str, description: str = "", category: str = "Otros") -> Dict:
+    def add_app(self, name: str, command: str, description: str = "", category: str = "Otros", launch: str = "") -> Dict:
         with self._lock:
             apps = self._read()
             next_id = max([app["id"] for app in apps], default=0) + 1
@@ -53,6 +54,7 @@ class AppsStore:
                 "description": description.strip(),
                 "category": category.strip() or "Otros",
                 "installed": False,
+                "launch": launch.strip(),
             }
             apps.append(new_app)
             self._write(apps)

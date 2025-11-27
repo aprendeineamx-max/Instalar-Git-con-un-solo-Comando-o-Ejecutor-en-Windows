@@ -345,9 +345,6 @@ h1 {
 }
 
 .status-badge {
-  position: absolute;
-  top: 10px;
-  right: 10px;
   padding: 6px 10px;
   border-radius: 10px;
   font-weight: 800;
@@ -365,6 +362,12 @@ h1 {
 .status-badge.danger {
   color: var(--danger);
   border-color: rgba(255, 123, 123, 0.4);
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .progress {
