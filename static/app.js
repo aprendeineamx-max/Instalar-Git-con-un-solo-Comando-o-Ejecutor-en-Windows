@@ -27,6 +27,11 @@ function showToast(message) {
 async function fetchApps() {
   const res = await fetch(api.apps);
   apps = await res.json();
+  apps.forEach((app) => {
+    if (app.installed) {
+      statusMap.set(app.id, { state: "done", progress: 100 });
+    }
+  });
   appCount.textContent = apps.length;
   renderCards();
 }
@@ -256,6 +261,7 @@ async function checkInstallations() {
       });
     });
     renderCards();
+    fetchApps(); // recarga catálogo con installed persistido
     showToast("Catalogo sincronizado con apps instaladas");
   } catch (err) {
     console.error(err);

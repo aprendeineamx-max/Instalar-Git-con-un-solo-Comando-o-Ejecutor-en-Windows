@@ -67,12 +67,15 @@ def is_already_installed(text: str) -> bool:
         "já está instalado",
         "keine aktualisierung verfügbar",
         "bereits installiert",
+        "paket bereits installiert",
+        "pas de mise à jour disponible",
+        "déjà installé",
     ]
     return any(sig in normalized for sig in signals)
 
 
 def extract_package_id(command: str) -> str:
-    match = re.search(r"--id\s+([\\w\\.\\-]+)", command)
+    match = re.search(r"--id\s+([\w\.\-]+)", command, flags=re.IGNORECASE)
     return match.group(1) if match else ""
 
 
@@ -80,11 +83,31 @@ def check_app_installed(app_config: dict) -> bool:
     pkg_id = extract_package_id(app_config.get("command", ""))
     if not pkg_id:
         return False
-    cmd = f"winget list --id {pkg_id} --exact --source winget"
+    # Try with winget; source falls back to default if not found.
+    cmd = f"winget list --id {pkg_id} --exact"
     code, output = run_powershell(cmd, timeout=120)
+    normalized = output.lower()
+    not_installed_signals = [
+        "no se encuentra ningun paquete instalado",
+        "no se encuentra ningún paquete instalado",
+        "no se encuentra ningun paquete instalado que coincida con los criterios de entrada",
+        "no se encuentra ningún paquete instalado que coincida con los criterios de entrada",
+        "no installed package found",
+        "no installed package found matching input criteria",
+        "no packages found",
+        "no package found",
+        "no se encontró el paquete",
+    ]
+    if any(sig in normalized for sig in not_installed_signals):
+        return False
     if is_already_installed(output):
         return True
-    return pkg_id.lower() in output.lower() or app_config.get("name", "").lower() in output.lower()
+    if pkg_id.lower() in normalized:
+        return True
+    if app_config.get("name", "").lower() in normalized:
+        return True
+    # When winget returns code 0 with empty/no match text, assume installed if no negative signals.
+    return code == 0
 
 
 def sse(event: str, data: dict) -> str:

@@ -5,7 +5,7 @@
     "command": "winget install --id Git.Git -e --source winget --accept-package-agreements --accept-source-agreements --silent",
     "description": "Cliente Git oficial por winget para clonar y contribuir a repos (silencioso).",
     "category": "Control de versiones",
-    "installed": false
+    "installed": true
   },
   {
     "id": 2,
@@ -13,7 +13,7 @@
     "command": "winget install --id Microsoft.VisualStudioCode -e --source winget --accept-package-agreements --accept-source-agreements --silent",
     "description": "Editor ligero listo para extensiones (silencioso).",
     "category": "IDE",
-    "installed": false
+    "installed": true
   },
   {
     "id": 3,
@@ -21,7 +21,7 @@
     "command": "winget install --id 7zip.7zip -e --source winget --accept-package-agreements --accept-source-agreements --silent",
     "description": "Compresor y descompresor rápido (silencioso).",
     "category": "Utilidades",
-    "installed": false
+    "installed": true
   },
   {
     "id": 4,
@@ -45,7 +45,7 @@
     "command": "winget install --id Mozilla.Firefox -e --source winget --accept-package-agreements --accept-source-agreements --silent",
     "description": "Navegador Firefox estable.",
     "category": "Navegadores",
-    "installed": false
+    "installed": true
   },
   {
     "id": 7,
@@ -77,7 +77,7 @@
     "command": "winget install --id Perplexity.Comet -e --source winget --accept-package-agreements --accept-source-agreements --silent",
     "description": "Comet por Perplexity (winget).",
     "category": "IA",
-    "installed": false
+    "installed": true
   },
   {
     "id": 11,
@@ -85,6 +85,6 @@
     "command": "winget install --id OBSProject.OBSStudio -e --source winget --accept-package-agreements --accept-source-agreements --silent",
     "description": "OBS Studio para grabar y hacer streaming.",
     "category": "Multimedia",
-    "installed": false
+    "installed": true
   }
 ]
