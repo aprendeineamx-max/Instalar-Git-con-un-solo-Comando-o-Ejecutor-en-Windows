@@ -32,7 +32,7 @@
     "command": "winget install --id Google.Chrome -e --source winget --accept-package-agreements --accept-source-agreements --silent",
     "description": "Navegador Chrome estable.",
     "category": "Navegadores",
-    "installed": false,
+    "installed": true,
     "launch": "chrome"
   },
   {
@@ -41,7 +41,7 @@
     "command": "winget install --id Google.Chrome.Dev -e --source winget --accept-package-agreements --accept-source-agreements --silent",
     "description": "Canal Dev de Chrome para probar novedades.",
     "category": "Navegadores",
-    "installed": false,
+    "installed": true,
     "launch": "chrome"
   },
   {
@@ -59,7 +59,7 @@
     "command": "winget install --id Brave.Brave -e --source winget --accept-package-agreements --accept-source-agreements --silent",
     "description": "Navegador Brave con bloqueador integrado.",
     "category": "Navegadores",
-    "installed": false,
+    "installed": true,
     "launch": "brave"
   },
   {
@@ -68,7 +68,7 @@
     "command": "winget install --id j178.ChatGPT -e --source winget --accept-package-agreements --accept-source-agreements --silent",
     "description": "Cliente ChatGPT de escritorio (winget).",
     "category": "IA",
-    "installed": false,
+    "installed": true,
     "launch": "chatgpt"
   },
   {
@@ -77,7 +77,7 @@
     "command": "winget install --id XP8JNQFBQH6PVF -e --source msstore --accept-package-agreements --accept-source-agreements",
     "description": "Perplexity AI desde Microsoft Store.",
     "category": "IA",
-    "installed": false,
+    "installed": true,
     "launch": "perplexity"
   },
   {

@@ -81,12 +81,10 @@ def extract_package_id(command: str) -> str:
 
 def check_app_installed(app_config: dict) -> bool:
     pkg_id = extract_package_id(app_config.get("command", ""))
-    if not pkg_id:
+    name = app_config.get("name", "").strip()
+    if not pkg_id and not name:
         return False
-    # Try with winget; source falls back to default if not found.
-    cmd = f"winget list --id {pkg_id} --exact"
-    code, output = run_powershell(cmd, timeout=120)
-    normalized = output.lower()
+
     not_installed_signals = [
         "no se encuentra ningun paquete instalado",
         "no se encuentra ningún paquete instalado",
@@ -98,16 +96,58 @@ def check_app_installed(app_config: dict) -> bool:
         "no package found",
         "no se encontró el paquete",
     ]
-    if any(sig in normalized for sig in not_installed_signals):
-        return False
-    if is_already_installed(output):
-        return True
-    if pkg_id.lower() in normalized:
-        return True
-    if app_config.get("name", "").lower() in normalized:
-        return True
-    # When winget returns code 0 with empty/no match text, assume installed if no negative signals.
-    return code == 0
+
+    def matches(norm_text: str) -> bool:
+        base = pkg_id.lower()
+        alt = f"{base}.exe" if not base.endswith(".exe") else base
+        name_l = name.lower()
+        base_nodots = base.replace(".", "")
+        name_clean = re.sub(r"[^a-z0-9]", "", name_l)
+        keywords = {
+            base,
+            alt,
+            base_nodots,
+            name_l,
+            name_clean,
+        }
+        # Add generic tokens for well-known apps
+        if "chrome" in base or "chrome" in name_l:
+            keywords.update({"google chrome", "chrome", "chromedev"})
+        if "chatgpt" in base or "chatgpt" in name_l:
+            keywords.update(
+                {
+                    "chatgpt",
+                    "openai.chatgpt",
+                    "chatgptdesktop",
+                    "chatgpt-desktop",
+                    "openai.chatgpt-desktop",
+                }
+            )
+        return is_already_installed(norm_text) or any(
+            kw for kw in keywords if kw and kw in norm_text
+        )
+
+    search_terms = []
+    if pkg_id:
+        search_terms.append(f"winget list --id {pkg_id} --exact")
+    if name:
+        search_terms.append(f'winget list "{name}"')
+    # Extra broad search for ChatGPT
+    if "chatgpt" in name.lower() and f'winget list "ChatGPT"' not in search_terms:
+        search_terms.append('winget list "ChatGPT"')
+
+    for cmd in search_terms:
+        code, output = run_powershell(cmd, timeout=120)
+        norm = output.lower()
+        if matches(norm):
+            return True
+        if any(sig in norm for sig in not_installed_signals):
+            continue
+        if code == 0:
+            # If winget returned OK and no negative signals, assume present.
+            return True
+
+    return False
 
 
 @app.post("/api/open/<int:app_id>")
