@@ -79,21 +79,6 @@ def extract_package_id(command: str) -> str:
     return match.group(1) if match else ""
 
 
-def find_appx_pfn(app_name: str) -> str:
-    """Try to discover Package Family Name from installed Appx packages using a fuzzy name match."""
-    pattern = re.sub(r"[^A-Za-z0-9]", "", app_name)
-    if not pattern:
-        return ""
-    cmd = (
-        f"(Get-AppxPackage -Name '*{pattern}*' | Select-Object -First 1).PackageFamilyName"
-    )
-    code, output = run_powershell(cmd, timeout=30)
-    if code != 0:
-        return ""
-    pfn = (output or "").strip().splitlines()[0] if output else ""
-    return pfn.strip()
-
-
 def _detect_source(app_config: dict) -> str:
     cmd = app_config.get("command", "").lower()
     if "--source msstore" in cmd:
@@ -215,28 +200,9 @@ def open_app(app_id: int):
     launch_cmd = app_config.get("launch") or app_config.get("name")
     if not launch_cmd:
         return jsonify({"error": "No hay comando de apertura definido."}), 400
-
-    # Primer intento con el comando provisto
     code, output = run_powershell(f'Start-Process "{launch_cmd}"')
-    if code == 0:
-        return jsonify({"status": "ok", "exit_code": code, "output": output})
-
-    # Fallback para apps de Microsoft Store: abrir por Package Family Name
-    pfn = app_config.get("pfn") or find_appx_pfn(app_config.get("name", ""))
-    if pfn:
-        fallback_cmd = f'Start-Process "shell:AppsFolder\\{pfn}!App"'
-        code2, output2 = run_powershell(fallback_cmd)
-        status = "ok" if code2 == 0 else "error"
-        return jsonify(
-            {
-                "status": status,
-                "exit_code": code2,
-                "output": output2 or output,
-                "pfn": pfn,
-            }
-        )
-
-    return jsonify({"status": "error", "exit_code": code, "output": output})
+    status = "ok" if code == 0 else "error"
+    return jsonify({"status": status, "exit_code": code, "output": output})
 
 
 def sse(event: str, data: dict) -> str:

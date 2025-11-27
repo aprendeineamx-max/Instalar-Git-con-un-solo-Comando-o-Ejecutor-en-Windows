@@ -21,6 +21,7 @@ let logs = [];
 const statusMap = new Map(); // id -> {state, progress}
 const liveLogs = new Map(); // id -> text
 const versionsMap = new Map(); // id -> {current_version, latest_version, update_available}
+const openingSet = new Set(); // ids being opened
 
 function showToast(message) {
   toastEl.textContent = message;
@@ -128,7 +129,9 @@ function renderCards() {
         </button>
         ${
           state.state === "done"
-            ? `<button class="btn ghost" data-open="${app.id}">Abrir</button>`
+            ? `<button class="btn ghost" data-open="${app.id}" ${
+                openingSet.has(app.id) ? "disabled" : ""
+              }>${openingSet.has(app.id) ? "Abriendo..." : "Abrir"}</button>`
             : ""
         }
         ${
@@ -355,6 +358,8 @@ function isImageIcon(icon) {
 }
 
 async function openApp(app) {
+  openingSet.add(app.id);
+  renderCards();
   try {
     const res = await fetch(api.open(app.id), { method: "POST" });
     const data = await res.json();
@@ -366,6 +371,9 @@ async function openApp(app) {
   } catch (err) {
     console.error(err);
     showToast("No se pudo abrir");
+  } finally {
+    openingSet.delete(app.id);
+    renderCards();
   }
 }
 

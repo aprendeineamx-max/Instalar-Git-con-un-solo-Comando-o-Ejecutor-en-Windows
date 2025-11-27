@@ -7,7 +7,7 @@
     "category": "Control de versiones",
     "installed": true,
     "launch": "C:\\\\Program Files\\\\Git\\\\git-bash.exe",
-    "icon": "icons/git.png",
+    "icon": "/icons/git.png",
     "homepage": "",
     "download": "",
     "pfn": ""
@@ -20,7 +20,7 @@
     "category": "IDE",
     "installed": true,
     "launch": "code",
-    "icon": "icons/vscode.png",
+    "icon": "/icons/vscode.png",
     "homepage": "",
     "download": "",
     "pfn": ""
@@ -33,7 +33,7 @@
     "category": "Utilidades",
     "installed": true,
     "launch": "C:\\\\Program Files\\\\7-Zip\\\\7zFM.exe",
-    "icon": "icons/7zip.png",
+    "icon": "/icons/7zip.png",
     "homepage": "",
     "download": "",
     "pfn": ""
@@ -46,7 +46,7 @@
     "category": "Navegadores",
     "installed": true,
     "launch": "chrome",
-    "icon": "icons/chrome.png",
+    "icon": "/icons/chrome.png",
     "homepage": "",
     "download": "",
     "pfn": ""
@@ -59,7 +59,7 @@
     "category": "Navegadores",
     "installed": true,
     "launch": "chrome",
-    "icon": "icons/chrome-dev.png",
+    "icon": "/icons/chrome-dev.png",
     "homepage": "",
     "download": "",
     "pfn": ""
@@ -72,7 +72,7 @@
     "category": "Navegadores",
     "installed": true,
     "launch": "firefox",
-    "icon": "icons/firefox.png",
+    "icon": "/icons/firefox.png",
     "homepage": "",
     "download": "",
     "pfn": ""
@@ -85,7 +85,7 @@
     "category": "Navegadores",
     "installed": true,
     "launch": "brave",
-    "icon": "icons/brave.png",
+    "icon": "/icons/brave.png",
     "homepage": "",
     "download": "",
     "pfn": ""
@@ -98,7 +98,7 @@
     "category": "IA",
     "installed": true,
     "launch": "chatgpt",
-    "icon": "icons/chatgpt.png",
+    "icon": "/icons/chatgpt.png",
     "homepage": "",
     "download": "",
     "pfn": ""
@@ -110,11 +110,11 @@
     "description": "Perplexity AI desde Microsoft Store.",
     "category": "IA",
     "installed": true,
-    "launch": "perplexity",
-    "icon": "icons/perplexity.png",
+    "launch": "explorer.exe \"shell:AppsFolder\\com.todesktop.25020447d4kq915\"",
+    "icon": "/icons/perplexity.png",
     "homepage": "https://www.perplexity.ai/",
     "download": "https://www.microsoft.com/store/productId/XP8JNQFBQH6PVF",
-    "pfn": ""
+    "pfn": "XP8JNQFBQH6PVF"
   },
   {
     "id": 10,
@@ -123,11 +123,11 @@
     "description": "Comet por Perplexity (winget).",
     "category": "IA",
     "installed": true,
-    "launch": "perplexity",
-    "icon": "icons/perplexity.png",
+    "launch": "explorer.exe \"shell:AppsFolder\\Comet.OY6C225PZJZRHQIEAN72ZAGNZU\"",
+    "icon": "/icons/perplexity.png",
     "homepage": "https://www.perplexity.ai/",
     "download": "https://www.microsoft.com/store/productId/XP8JNQFBQH6PVF",
-    "pfn": ""
+    "pfn": "XP8JNQFBQH6PVF"
   },
   {
     "id": 11,
@@ -137,7 +137,7 @@
     "category": "Multimedia",
     "installed": true,
     "launch": "obs64.exe",
-    "icon": "icons/obs.png",
+    "icon": "/icons/obs.png",
     "homepage": "",
     "download": "",
     "pfn": ""
