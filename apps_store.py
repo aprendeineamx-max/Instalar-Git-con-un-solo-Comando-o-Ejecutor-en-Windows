@@ -24,7 +24,7 @@ class AppsStore:
                     "category": "Control de versiones",
                     "installed": False,
                     "launch": "",
-                    "icon": "🐙",
+                    "icon": "https://cdn.simpleicons.org/git/ffffff",
                 }
             ]
             self._write(default)

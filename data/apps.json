@@ -7,7 +7,7 @@
     "category": "Control de versiones",
     "installed": true,
     "launch": "C:\\\\Program Files\\\\Git\\\\git-bash.exe",
-    "icon": "🐙"
+    "icon": "icons/git.png"
   },
   {
     "id": 2,
@@ -17,7 +17,7 @@
     "category": "IDE",
     "installed": true,
     "launch": "code",
-    "icon": "🟦"
+    "icon": "icons/vscode.png"
   },
   {
     "id": 3,
@@ -27,7 +27,7 @@
     "category": "Utilidades",
     "installed": true,
     "launch": "C:\\\\Program Files\\\\7-Zip\\\\7zFM.exe",
-    "icon": "📦"
+    "icon": "icons/7zip.png"
   },
   {
     "id": 4,
@@ -37,7 +37,7 @@
     "category": "Navegadores",
     "installed": true,
     "launch": "chrome",
-    "icon": "🌐"
+    "icon": "icons/chrome.png"
   },
   {
     "id": 5,
@@ -47,7 +47,7 @@
     "category": "Navegadores",
     "installed": true,
     "launch": "chrome",
-    "icon": "🧪"
+    "icon": "icons/chrome-dev.png"
   },
   {
     "id": 6,
@@ -57,7 +57,7 @@
     "category": "Navegadores",
     "installed": true,
     "launch": "firefox",
-    "icon": "🦊"
+    "icon": "icons/firefox.png"
   },
   {
     "id": 7,
@@ -67,7 +67,7 @@
     "category": "Navegadores",
     "installed": true,
     "launch": "brave",
-    "icon": "🛡️"
+    "icon": "icons/brave.png"
   },
   {
     "id": 8,
@@ -77,7 +77,7 @@
     "category": "IA",
     "installed": true,
     "launch": "chatgpt",
-    "icon": "🤖"
+    "icon": "icons/chatgpt.png"
   },
   {
     "id": 9,
@@ -87,7 +87,7 @@
     "category": "IA",
     "installed": true,
     "launch": "perplexity",
-    "icon": "🔍"
+    "icon": "/icons/perplexity.svg"
   },
   {
     "id": 10,
@@ -97,7 +97,7 @@
     "category": "IA",
     "installed": true,
     "launch": "perplexity",
-    "icon": "☄️"
+    "icon": "/icons/perplexity.svg"
   },
   {
     "id": 11,
@@ -107,6 +107,6 @@
     "category": "Multimedia",
     "installed": true,
     "launch": "obs64.exe",
-    "icon": "🎥"
+    "icon": "/icons/obs.svg"
   }
 ]

@@ -80,7 +80,11 @@ function renderCards() {
         }
       </div>
       <div class="title-row">
-        <div class="app-icon">${app.icon || "⬢"}</div>
+        ${
+          isImageIcon(app.icon)
+            ? `<div class="app-icon img"><img src="${app.icon}" alt="${app.name}" loading="lazy"/></div>`
+            : `<div class="app-icon">${app.icon || "⬢"}</div>`
+        }
         <h3>${app.name}</h3>
       </div>
       <p>${app.description || "Sin descripcion"}</p>
@@ -303,6 +307,17 @@ function updateCategories() {
     categoryFilter.appendChild(option);
     existing.add(cat.toLowerCase());
   });
+}
+
+function isImageIcon(icon) {
+  if (!icon) return false;
+  return (
+    icon.startsWith("http://") ||
+    icon.startsWith("https://") ||
+    icon.startsWith("data:") ||
+    icon.startsWith("/") ||
+    icon.startsWith("icons/")
+  );
 }
 
 async function openApp(app) {
