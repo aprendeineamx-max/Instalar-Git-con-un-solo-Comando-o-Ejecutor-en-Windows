@@ -5,6 +5,7 @@ const api = {
   version: (id) => `/api/version/${id}`,
   installStream: (id) => `/api/install/${id}/stream?ts=${Date.now()}`,
   open: (id) => `/api/open/${id}`,
+  update: (id) => `/api/apps/${id}`,
 };
 
 const toastEl = document.getElementById("toast");
@@ -22,6 +23,7 @@ const statusMap = new Map(); // id -> {state, progress}
 const liveLogs = new Map(); // id -> text
 const versionsMap = new Map(); // id -> {current_version, latest_version, update_available}
 const openingSet = new Set(); // ids being opened
+const editState = new Map(); // id -> {installLocked, launchLocked}
 
 function showToast(message) {
   toastEl.textContent = message;
@@ -114,7 +116,20 @@ function renderCards() {
             : ""
         }
       </div>
-      <div class="command">${app.command}</div>
+      <div>
+        <div class="command" contenteditable="false" data-command-install="${app.id}" aria-label="Comando de instalación">${app.command}</div>
+        <div class="command-actions">
+          <button class="copy-btn" data-copy-install="${app.id}">Copiar</button>
+          <button class="edit-btn" data-edit-install="${app.id}">✏️</button>
+        </div>
+      </div>
+      <div>
+        <div class="command" contenteditable="false" data-command-launch="${app.id}" aria-label="Comando de apertura">${app.launch || "Sin comando de apertura"}</div>
+        <div class="command-actions">
+          <button class="copy-btn" data-copy-launch="${app.id}">Copiar</button>
+          <button class="edit-btn" data-edit-launch="${app.id}">✏️</button>
+        </div>
+      </div>
       <div class="actions">
         <button class="btn primary" data-install="${app.id}" ${
           state.state === "installing" ? "disabled" : ""
@@ -167,6 +182,15 @@ function renderCards() {
     if (updateBtn) {
       updateBtn.addEventListener("click", () => installApp(app));
     }
+    // Copy/edit handlers
+    const copyInstall = card.querySelector(`[data-copy-install="${app.id}"]`);
+    if (copyInstall) copyInstall.addEventListener("click", () => copyCommand(app.id, "install"));
+    const copyLaunch = card.querySelector(`[data-copy-launch="${app.id}"]`);
+    if (copyLaunch) copyLaunch.addEventListener("click", () => copyCommand(app.id, "launch"));
+    const editInstall = card.querySelector(`[data-edit-install="${app.id}"]`);
+    if (editInstall) editInstall.addEventListener("click", () => toggleEdit(app.id, "install"));
+    const editLaunch = card.querySelector(`[data-edit-launch="${app.id}"]`);
+    if (editLaunch) editLaunch.addEventListener("click", () => toggleEdit(app.id, "launch"));
   });
 }
 
@@ -361,7 +385,11 @@ async function openApp(app) {
   openingSet.add(app.id);
   renderCards();
   try {
-    const res = await fetch(api.open(app.id), { method: "POST" });
+    const res = await fetch(api.open(app.id), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ launch: getLaunchValue(app.id, app.launch) }),
+    });
     const data = await res.json();
     if (res.ok && data.status === "ok") {
       showToast(`Abriendo ${app.name}...`);
@@ -388,5 +416,64 @@ async function fetchVersions() {
     await Promise.all(tasks);
   } catch (err) {
     console.error(err);
+  }
+}
+
+function getLaunchValue(id, fallback) {
+  const node = document.querySelector(`[data-command-launch="${id}"]`);
+  if (node) return node.textContent.trim() || fallback || "";
+  return fallback || "";
+}
+
+function toggleEdit(id, type) {
+  const key = `${id}-${type}`;
+  const isInstall = type === "install";
+  const node = document.querySelector(
+    `[data-command-${isInstall ? "install" : "launch"}="${id}"]`
+  );
+  const btn = document.querySelector(
+    `[data-edit-${isInstall ? "install" : "launch"}="${id}"]`
+  );
+  if (!node || !btn) return;
+  const entry = editState.get(key) || { locked: true };
+  entry.locked = !entry.locked;
+  editState.set(key, entry);
+  node.contentEditable = entry.locked ? "false" : "true";
+  node.classList.toggle("command-input", !entry.locked);
+  btn.textContent = entry.locked ? "✏️" : "✔️";
+  if (entry.locked) {
+    node.blur();
+    saveEditedCommand(id, isInstall ? "install" : "launch", node.textContent.trim());
+  } else {
+    node.focus();
+  }
+}
+
+async function copyCommand(id, type) {
+  const node = document.querySelector(
+    `[data-command-${type === "install" ? "install" : "launch"}="${id}"]`
+  );
+  if (!node) return;
+  try {
+    await navigator.clipboard.writeText(node.textContent.trim());
+    showToast("Copiado");
+  } catch (err) {
+    console.error(err);
+    showToast("No se pudo copiar");
+  }
+}
+
+async function saveEditedCommand(id, type, value) {
+  const payload = type === "install" ? { command: value } : { launch: value };
+  try {
+    await fetch(api.update(id), {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    showToast("Guardado");
+  } catch (err) {
+    console.error(err);
+    showToast("No se pudo guardar");
   }
 }

@@ -89,6 +89,34 @@ class AppsStore:
             apps = self._read()
             return next((app for app in apps if app.get("id") == app_id), None)
 
+    def update_app(
+        self,
+        app_id: int,
+        *,
+        command: Optional[str] = None,
+        launch: Optional[str] = None,
+        homepage: Optional[str] = None,
+        download: Optional[str] = None,
+        icon: Optional[str] = None,
+    ) -> Optional[Dict]:
+        with self._lock:
+            apps = self._read()
+            target = next((app for app in apps if app.get("id") == app_id), None)
+            if not target:
+                return None
+            if command is not None:
+                target["command"] = command
+            if launch is not None:
+                target["launch"] = launch
+            if homepage is not None:
+                target["homepage"] = homepage
+            if download is not None:
+                target["download"] = download
+            if icon is not None:
+                target["icon"] = icon
+            self._write(apps)
+            return target
+
     def mark_installed(self, app_id: int, installed: bool) -> Optional[Dict]:
         with self._lock:
             apps = self._read()

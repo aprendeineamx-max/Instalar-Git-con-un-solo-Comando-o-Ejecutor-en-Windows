@@ -7,7 +7,7 @@
     "category": "Control de versiones",
     "installed": true,
     "launch": "C:\\\\Program Files\\\\Git\\\\git-bash.exe",
-    "icon": "/icons/git.png",
+    "icon": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%23f4511e'/><text x='50%' y='55%' text-anchor='middle' font-size='28' fill='white' font-family='Segoe UI'>G</text></svg>",
     "homepage": "",
     "download": "",
     "pfn": ""
@@ -20,7 +20,7 @@
     "category": "IDE",
     "installed": true,
     "launch": "code",
-    "icon": "/icons/vscode.png",
+    "icon": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%23007acc'/><text x='50%' y='55%' text-anchor='middle' font-size='22' fill='white' font-family='Segoe UI'>VS</text></svg>",
     "homepage": "",
     "download": "",
     "pfn": ""
@@ -33,7 +33,7 @@
     "category": "Utilidades",
     "installed": true,
     "launch": "C:\\\\Program Files\\\\7-Zip\\\\7zFM.exe",
-    "icon": "/icons/7zip.png",
+    "icon": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%23272727'/><text x='50%' y='55%' text-anchor='middle' font-size='20' fill='white' font-family='Segoe UI'>7Z</text></svg>",
     "homepage": "",
     "download": "",
     "pfn": ""
@@ -46,7 +46,7 @@
     "category": "Navegadores",
     "installed": true,
     "launch": "chrome",
-    "icon": "/icons/chrome.png",
+    "icon": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='32' fill='%23fbbc04'/><circle cx='32' cy='32' r='22' fill='%234285f4'/><circle cx='32' cy='32' r='12' fill='white'/></svg>",
     "homepage": "",
     "download": "",
     "pfn": ""
@@ -59,7 +59,7 @@
     "category": "Navegadores",
     "installed": true,
     "launch": "chrome",
-    "icon": "/icons/chrome-dev.png",
+    "icon": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><circle cx='32' cy='32' r='32' fill='%2334a853'/><circle cx='32' cy='32' r='22' fill='%234285f4'/><text x='50%' y='57%' text-anchor='middle' font-size='18' fill='white' font-family='Segoe UI'>DEV</text></svg>",
     "homepage": "",
     "download": "",
     "pfn": ""
@@ -72,7 +72,7 @@
     "category": "Navegadores",
     "installed": true,
     "launch": "firefox",
-    "icon": "/icons/firefox.png",
+    "icon": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%23e66000'/><text x='50%' y='55%' text-anchor='middle' font-size='22' fill='white' font-family='Segoe UI'>FF</text></svg>",
     "homepage": "",
     "download": "",
     "pfn": ""
@@ -85,7 +85,7 @@
     "category": "Navegadores",
     "installed": true,
     "launch": "brave",
-    "icon": "/icons/brave.png",
+    "icon": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%23ff7043'/><text x='50%' y='55%' text-anchor='middle' font-size='22' fill='white' font-family='Segoe UI'>BR</text></svg>",
     "homepage": "",
     "download": "",
     "pfn": ""
@@ -98,7 +98,7 @@
     "category": "IA",
     "installed": true,
     "launch": "chatgpt",
-    "icon": "/icons/chatgpt.png",
+    "icon": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%23188f87'/><text x='50%' y='55%' text-anchor='middle' font-size='22' fill='white' font-family='Segoe UI'>AI</text></svg>",
     "homepage": "",
     "download": "",
     "pfn": ""
@@ -110,8 +110,8 @@
     "description": "Perplexity AI desde Microsoft Store.",
     "category": "IA",
     "installed": true,
-    "launch": "explorer.exe \"shell:AppsFolder\\com.todesktop.25020447d4kq915\"",
-    "icon": "/icons/perplexity.png",
+    "launch": "C:\\Users\\Usuario\\AppData\\Local\\Programs\\Perplexity\\Perplexity.exe",
+    "icon": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%23003b5c'/><text x='50%' y='55%' text-anchor='middle' font-size='18' fill='white' font-family='Segoe UI'>PPX</text></svg>",
     "homepage": "https://www.perplexity.ai/",
     "download": "https://www.microsoft.com/store/productId/XP8JNQFBQH6PVF",
     "pfn": "XP8JNQFBQH6PVF"
@@ -124,7 +124,7 @@
     "category": "IA",
     "installed": true,
     "launch": "explorer.exe \"shell:AppsFolder\\Comet.OY6C225PZJZRHQIEAN72ZAGNZU\"",
-    "icon": "/icons/perplexity.png",
+    "icon": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%23003b5c'/><text x='50%' y='55%' text-anchor='middle' font-size='18' fill='white' font-family='Segoe UI'>PPX</text></svg>",
     "homepage": "https://www.perplexity.ai/",
     "download": "https://www.microsoft.com/store/productId/XP8JNQFBQH6PVF",
     "pfn": "XP8JNQFBQH6PVF"
@@ -137,7 +137,7 @@
     "category": "Multimedia",
     "installed": true,
     "launch": "obs64.exe",
-    "icon": "/icons/obs.png",
+    "icon": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%23262626'/><text x='50%' y='55%' text-anchor='middle' font-size='22' fill='white' font-family='Segoe UI'>OBS</text></svg>",
     "homepage": "",
     "download": "",
     "pfn": ""

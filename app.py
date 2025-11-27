@@ -1,4 +1,5 @@
 import json
+import os
 import re
 import subprocess
 import time
@@ -197,12 +198,56 @@ def open_app(app_id: int):
     app_config = store.get_app(app_id)
     if not app_config:
         return jsonify({"error": "Aplicacion no encontrada."}), 404
-    launch_cmd = app_config.get("launch") or app_config.get("name")
+    payload = request.get_json(force=True, silent=True) or {}
+    launch_override = (payload.get("launch") or "").strip()
+    launch_cmd = launch_override or app_config.get("launch") or app_config.get("name")
     if not launch_cmd:
         return jsonify({"error": "No hay comando de apertura definido."}), 400
-    code, output = run_powershell(f'Start-Process "{launch_cmd}"')
-    status = "ok" if code == 0 else "error"
-    return jsonify({"status": status, "exit_code": code, "output": output})
+    # Si es ruta a .exe existente, usa -FilePath
+    if os.path.isfile(launch_cmd):
+        code, output = run_powershell(f'Start-Process -FilePath "{launch_cmd}"')
+        if code == 0:
+            return jsonify({"status": "ok", "exit_code": code, "output": output, "launch": launch_cmd})
+    else:
+        code, output = run_powershell(f'Start-Process "{launch_cmd}"')
+        if code == 0:
+            return jsonify({"status": "ok", "exit_code": code, "output": output, "launch": launch_cmd})
+
+    # Fallback para apps MS Store / StartMenu
+    pfn = app_config.get("pfn") or find_appx_pfn(app_config.get("name", ""))
+    if pfn:
+        fallback_cmd = f'Start-Process "explorer.exe" "shell:AppsFolder\\{pfn}"'
+        code2, output2 = run_powershell(fallback_cmd)
+        status = "ok" if code2 == 0 else "error"
+        return jsonify(
+            {
+                "status": status,
+                "exit_code": code2,
+                "output": output2 or output,
+                "pfn": pfn,
+            }
+        )
+
+    return jsonify({"status": "error", "exit_code": code, "output": output})
+
+
+@app.patch("/api/apps/<int:app_id>")
+def update_app(app_id: int):
+    app_config = store.get_app(app_id)
+    if not app_config:
+        return jsonify({"error": "Aplicacion no encontrada."}), 404
+    payload = request.get_json(force=True, silent=True) or {}
+    updated = store.update_app(
+        app_id,
+        command=payload.get("command"),
+        launch=payload.get("launch"),
+        homepage=payload.get("homepage"),
+        download=payload.get("download"),
+        icon=payload.get("icon"),
+    )
+    if not updated:
+        return jsonify({"error": "No se pudo actualizar"}), 400
+    return jsonify(updated)
 
 
 def sse(event: str, data: dict) -> str:

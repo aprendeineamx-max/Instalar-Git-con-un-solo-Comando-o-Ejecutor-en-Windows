@@ -251,7 +251,7 @@ h1 {
 
 .cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 14px;
   margin-top: 10px;
 }
@@ -547,6 +547,32 @@ h1 {
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+.command-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.copy-btn,
+.edit-btn {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.copy-btn:hover,
+.edit-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.command-input[disabled] {
+  opacity: 0.8;
+}
 .toast {
   position: fixed;
   bottom: 20px;
