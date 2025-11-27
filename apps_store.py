@@ -24,7 +24,10 @@ class AppsStore:
                     "category": "Control de versiones",
                     "installed": False,
                     "launch": "",
-                    "icon": "https://cdn.simpleicons.org/git/ffffff",
+                    "icon": "⬢",
+                    "homepage": "",
+                    "download": "",
+                    "pfn": "",
                 }
             ]
             self._write(default)
@@ -36,6 +39,9 @@ class AppsStore:
             app.setdefault("installed", False)
             app.setdefault("launch", "")
             app.setdefault("icon", "⬢")
+            app.setdefault("homepage", "")
+            app.setdefault("download", "")
+            app.setdefault("pfn", "")
         return data
 
     def _write(self, data: List[Dict]) -> None:
@@ -54,6 +60,9 @@ class AppsStore:
         category: str = "Otros",
         launch: str = "",
         icon: str = "⬢",
+        homepage: str = "",
+        download: str = "",
+        pfn: str = "",
     ) -> Dict:
         with self._lock:
             apps = self._read()
@@ -67,6 +76,9 @@ class AppsStore:
                 "installed": False,
                 "launch": launch.strip(),
                 "icon": icon.strip() or "⬢",
+                "homepage": homepage.strip(),
+                "download": download.strip(),
+                "pfn": pfn.strip(),
             }
             apps.append(new_app)
             self._write(apps)

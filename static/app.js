@@ -2,6 +2,7 @@ const api = {
   apps: "/api/apps",
   add: "/api/apps",
   check: "/api/check-installations",
+  version: (id) => `/api/version/${id}`,
   installStream: (id) => `/api/install/${id}/stream?ts=${Date.now()}`,
   open: (id) => `/api/open/${id}`,
 };
@@ -19,6 +20,7 @@ let apps = [];
 let logs = [];
 const statusMap = new Map(); // id -> {state, progress}
 const liveLogs = new Map(); // id -> text
+const versionsMap = new Map(); // id -> {current_version, latest_version, update_available}
 
 function showToast(message) {
   toastEl.textContent = message;
@@ -37,6 +39,8 @@ async function fetchApps() {
   updateCategories();
   appCount.textContent = apps.length;
   renderCards();
+  // Cargar versiones en background para no bloquear UI
+  fetchVersions().then(renderCards).catch(() => {});
 }
 
 async function refreshAll() {
@@ -66,6 +70,11 @@ function renderCards() {
       ? { state: "done", progress: 100 }
       : { state: "idle", progress: 0 };
     const state = statusMap.get(app.id) || defaultState;
+    const versions = versionsMap.get(app.id) || {
+      current_version: "desconocida",
+      latest_version: "desconocida",
+      update_available: false,
+    };
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
@@ -88,6 +97,22 @@ function renderCards() {
         <h3>${app.name}</h3>
       </div>
       <p>${app.description || "Sin descripcion"}</p>
+      <div class="versions">
+        <span>Instalada: <strong>${versions.current_version}</strong></span>
+        <span>Disponible: <strong>${versions.latest_version}</strong></span>
+      </div>
+      <div class="links">
+        ${
+          app.homepage
+            ? `<a href="${app.homepage}" target="_blank" rel="noreferrer">Sitio oficial</a>`
+            : ""
+        }
+        ${
+          app.download
+            ? `<a href="${app.download}" target="_blank" rel="noreferrer">Descargar instalador</a>`
+            : ""
+        }
+      </div>
       <div class="command">${app.command}</div>
       <div class="actions">
         <button class="btn primary" data-install="${app.id}" ${
@@ -104,6 +129,11 @@ function renderCards() {
         ${
           state.state === "done"
             ? `<button class="btn ghost" data-open="${app.id}">Abrir</button>`
+            : ""
+        }
+        ${
+          versions.update_available
+            ? `<button class="btn ghost" data-update="${app.id}">Actualizar</button>`
             : ""
         }
       </div>
@@ -129,6 +159,10 @@ function renderCards() {
     const openBtn = card.querySelector("[data-open]");
     if (openBtn) {
       openBtn.addEventListener("click", () => openApp(app));
+    }
+    const updateBtn = card.querySelector("[data-update]");
+    if (updateBtn) {
+      updateBtn.addEventListener("click", () => installApp(app));
     }
   });
 }
@@ -332,5 +366,19 @@ async function openApp(app) {
   } catch (err) {
     console.error(err);
     showToast("No se pudo abrir");
+  }
+}
+
+async function fetchVersions() {
+  try {
+    const tasks = apps.map((app) =>
+      fetch(api.version(app.id))
+        .then((r) => (r.ok ? r.json() : {}))
+        .then((data) => versionsMap.set(app.id, data))
+        .catch(() => versionsMap.set(app.id, {}))
+    );
+    await Promise.all(tasks);
+  } catch (err) {
+    console.error(err);
   }
 }

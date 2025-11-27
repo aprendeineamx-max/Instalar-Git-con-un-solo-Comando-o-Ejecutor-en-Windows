@@ -7,7 +7,10 @@
     "category": "Control de versiones",
     "installed": true,
     "launch": "C:\\\\Program Files\\\\Git\\\\git-bash.exe",
-    "icon": "icons/git.png"
+    "icon": "icons/git.png",
+    "homepage": "",
+    "download": "",
+    "pfn": ""
   },
   {
     "id": 2,
@@ -17,7 +20,10 @@
     "category": "IDE",
     "installed": true,
     "launch": "code",
-    "icon": "icons/vscode.png"
+    "icon": "icons/vscode.png",
+    "homepage": "",
+    "download": "",
+    "pfn": ""
   },
   {
     "id": 3,
@@ -27,7 +33,10 @@
     "category": "Utilidades",
     "installed": true,
     "launch": "C:\\\\Program Files\\\\7-Zip\\\\7zFM.exe",
-    "icon": "icons/7zip.png"
+    "icon": "icons/7zip.png",
+    "homepage": "",
+    "download": "",
+    "pfn": ""
   },
   {
     "id": 4,
@@ -37,7 +46,10 @@
     "category": "Navegadores",
     "installed": true,
     "launch": "chrome",
-    "icon": "icons/chrome.png"
+    "icon": "icons/chrome.png",
+    "homepage": "",
+    "download": "",
+    "pfn": ""
   },
   {
     "id": 5,
@@ -47,7 +59,10 @@
     "category": "Navegadores",
     "installed": true,
     "launch": "chrome",
-    "icon": "icons/chrome-dev.png"
+    "icon": "icons/chrome-dev.png",
+    "homepage": "",
+    "download": "",
+    "pfn": ""
   },
   {
     "id": 6,
@@ -57,7 +72,10 @@
     "category": "Navegadores",
     "installed": true,
     "launch": "firefox",
-    "icon": "icons/firefox.png"
+    "icon": "icons/firefox.png",
+    "homepage": "",
+    "download": "",
+    "pfn": ""
   },
   {
     "id": 7,
@@ -67,7 +85,10 @@
     "category": "Navegadores",
     "installed": true,
     "launch": "brave",
-    "icon": "icons/brave.png"
+    "icon": "icons/brave.png",
+    "homepage": "",
+    "download": "",
+    "pfn": ""
   },
   {
     "id": 8,
@@ -77,7 +98,10 @@
     "category": "IA",
     "installed": true,
     "launch": "chatgpt",
-    "icon": "icons/chatgpt.png"
+    "icon": "icons/chatgpt.png",
+    "homepage": "",
+    "download": "",
+    "pfn": ""
   },
   {
     "id": 9,
@@ -87,7 +111,10 @@
     "category": "IA",
     "installed": true,
     "launch": "perplexity",
-    "icon": "/icons/perplexity.svg"
+    "icon": "icons/perplexity.png",
+    "homepage": "https://www.perplexity.ai/",
+    "download": "https://www.microsoft.com/store/productId/XP8JNQFBQH6PVF",
+    "pfn": ""
   },
   {
     "id": 10,
@@ -97,7 +124,10 @@
     "category": "IA",
     "installed": true,
     "launch": "perplexity",
-    "icon": "/icons/perplexity.svg"
+    "icon": "icons/perplexity.png",
+    "homepage": "https://www.perplexity.ai/",
+    "download": "https://www.microsoft.com/store/productId/XP8JNQFBQH6PVF",
+    "pfn": ""
   },
   {
     "id": 11,
@@ -107,6 +137,9 @@
     "category": "Multimedia",
     "installed": true,
     "launch": "obs64.exe",
-    "icon": "/icons/obs.svg"
+    "icon": "icons/obs.png",
+    "homepage": "",
+    "download": "",
+    "pfn": ""
   }
 ]
