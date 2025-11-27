@@ -235,6 +235,20 @@ h1 {
   min-width: 260px;
 }
 
+.filters {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.filters select {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -368,6 +382,23 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .progress {

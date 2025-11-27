@@ -4,3 +4,5 @@ WARNING: This is a development server. Do not use it in a production deployment.
  * Running on http://192.168.1.68:5000
 Press CTRL+C to quit
  * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 122-227-490

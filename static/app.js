@@ -10,6 +10,7 @@ const toastEl = document.getElementById("toast");
 const appCount = document.getElementById("appCount");
 const appsGrid = document.getElementById("appsGrid");
 const searchInput = document.getElementById("search");
+const categoryFilter = document.getElementById("categoryFilter");
 const addForm = document.getElementById("addForm");
 const logList = document.getElementById("logList");
 const navLinks = document.querySelectorAll(".nav-link");
@@ -33,6 +34,7 @@ async function fetchApps() {
       statusMap.set(app.id, { state: "done", progress: 100 });
     }
   });
+  updateCategories();
   appCount.textContent = apps.length;
   renderCards();
 }
@@ -44,10 +46,12 @@ async function refreshAll() {
 
 function renderCards() {
   const query = (searchInput.value || "").toLowerCase();
+  const category = categoryFilter.value || "";
   const filtered = apps.filter(
     (a) =>
-      a.name.toLowerCase().includes(query) ||
-      (a.category || "").toLowerCase().includes(query)
+      (a.name.toLowerCase().includes(query) ||
+        (a.category || "").toLowerCase().includes(query)) &&
+      (category ? (a.category || "").toLowerCase() === category : true)
   );
 
   appsGrid.innerHTML = "";
@@ -75,7 +79,10 @@ function renderCards() {
             : ""
         }
       </div>
-      <h3>${app.name}</h3>
+      <div class="title-row">
+        <div class="app-icon">${app.icon || "⬢"}</div>
+        <h3>${app.name}</h3>
+      </div>
       <p>${app.description || "Sin descripcion"}</p>
       <div class="command">${app.command}</div>
       <div class="actions">
@@ -246,6 +253,7 @@ navLinks.forEach((link) => {
 });
 
 searchInput.addEventListener("input", renderCards);
+categoryFilter.addEventListener("change", renderCards);
 document.getElementById("refresh").addEventListener("click", refreshAll);
 document.getElementById("scrollNew").addEventListener("click", () => {
   document.getElementById("nuevo").scrollIntoView({ behavior: "smooth" });
@@ -279,6 +287,22 @@ async function checkInstallations() {
     console.error(err);
     showToast("No se pudo verificar instalaciones");
   }
+}
+
+function updateCategories() {
+  const existing = new Set();
+  const sorted = [...new Set(apps.map((a) => (a.category || "").trim()))]
+    .filter(Boolean)
+    .sort((a, b) => a.localeCompare(b));
+  // preserve "Todas" option
+  categoryFilter.innerHTML = `<option value="">Todas las categorías</option>`;
+  sorted.forEach((cat) => {
+    const option = document.createElement("option");
+    option.value = cat.toLowerCase();
+    option.textContent = cat;
+    categoryFilter.appendChild(option);
+    existing.add(cat.toLowerCase());
+  });
 }
 
 async function openApp(app) {

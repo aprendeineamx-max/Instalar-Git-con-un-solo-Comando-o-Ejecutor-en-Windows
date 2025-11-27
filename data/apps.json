@@ -6,7 +6,8 @@
     "description": "Cliente Git oficial por winget para clonar y contribuir a repos (silencioso).",
     "category": "Control de versiones",
     "installed": true,
-    "launch": "C:\\\\Program Files\\\\Git\\\\git-bash.exe"
+    "launch": "C:\\\\Program Files\\\\Git\\\\git-bash.exe",
+    "icon": "🐙"
   },
   {
     "id": 2,
@@ -15,7 +16,8 @@
     "description": "Editor ligero listo para extensiones (silencioso).",
     "category": "IDE",
     "installed": true,
-    "launch": "code"
+    "launch": "code",
+    "icon": "🟦"
   },
   {
     "id": 3,
@@ -24,7 +26,8 @@
     "description": "Compresor y descompresor rapido (silencioso).",
     "category": "Utilidades",
     "installed": true,
-    "launch": "C:\\\\Program Files\\\\7-Zip\\\\7zFM.exe"
+    "launch": "C:\\\\Program Files\\\\7-Zip\\\\7zFM.exe",
+    "icon": "📦"
   },
   {
     "id": 4,
@@ -33,7 +36,8 @@
     "description": "Navegador Chrome estable.",
     "category": "Navegadores",
     "installed": true,
-    "launch": "chrome"
+    "launch": "chrome",
+    "icon": "🌐"
   },
   {
     "id": 5,
@@ -42,7 +46,8 @@
     "description": "Canal Dev de Chrome para probar novedades.",
     "category": "Navegadores",
     "installed": true,
-    "launch": "chrome"
+    "launch": "chrome",
+    "icon": "🧪"
   },
   {
     "id": 6,
@@ -51,7 +56,8 @@
     "description": "Navegador Firefox estable.",
     "category": "Navegadores",
     "installed": true,
-    "launch": "firefox"
+    "launch": "firefox",
+    "icon": "🦊"
   },
   {
     "id": 7,
@@ -60,7 +66,8 @@
     "description": "Navegador Brave con bloqueador integrado.",
     "category": "Navegadores",
     "installed": true,
-    "launch": "brave"
+    "launch": "brave",
+    "icon": "🛡️"
   },
   {
     "id": 8,
@@ -69,7 +76,8 @@
     "description": "Cliente ChatGPT de escritorio (winget).",
     "category": "IA",
     "installed": true,
-    "launch": "chatgpt"
+    "launch": "chatgpt",
+    "icon": "🤖"
   },
   {
     "id": 9,
@@ -78,7 +86,8 @@
     "description": "Perplexity AI desde Microsoft Store.",
     "category": "IA",
     "installed": true,
-    "launch": "perplexity"
+    "launch": "perplexity",
+    "icon": "🔍"
   },
   {
     "id": 10,
@@ -87,7 +96,8 @@
     "description": "Comet por Perplexity (winget).",
     "category": "IA",
     "installed": true,
-    "launch": "perplexity"
+    "launch": "perplexity",
+    "icon": "☄️"
   },
   {
     "id": 11,
@@ -96,6 +106,7 @@
     "description": "OBS Studio para grabar y hacer streaming.",
     "category": "Multimedia",
     "installed": true,
-    "launch": "obs64.exe"
+    "launch": "obs64.exe",
+    "icon": "🎥"
   }
 ]
