@@ -90,6 +90,9 @@ def _detect_source(app_config: dict) -> str:
 def check_app_installed(app_config: dict) -> bool:
     pkg_id = extract_package_id(app_config.get("command", ""))
     name = app_config.get("name", "").strip()
+    launch_path = (app_config.get("launch") or "").strip().strip('"')
+    if launch_path and os.path.isfile(launch_path):
+        return True
     if not pkg_id and not name:
         return False
 
@@ -160,7 +163,15 @@ def get_versions(app_config: dict) -> Dict[str, str]:
     source = _detect_source(app_config)
     current = "desconocida"
     latest = "desconocida"
+    launch_path = (app_config.get("launch") or "").strip().strip('"')
 
+    # File version if launch path exists
+    if launch_path and os.path.isfile(launch_path):
+        code_file, out_file = run_powershell(
+            f"(Get-Item '{launch_path}').VersionInfo.ProductVersion"
+        )
+        if code_file == 0 and out_file.strip():
+            current = out_file.strip().splitlines()[0]
     # Installed version
     code_list, out_list = run_powershell(f"winget list --id {pkg_id} --exact {source}".strip())
     out_clean = out_list.replace("\r", "")
@@ -193,6 +204,18 @@ def get_versions(app_config: dict) -> Dict[str, str]:
     }
 
 
+def find_appx_pfn(app_name: str) -> str:
+    pattern = re.sub(r"[^A-Za-z0-9]", "", app_name)
+    if not pattern:
+        return ""
+    cmd = f"(Get-StartApps | Where-Object {{ $_.Name -like '*{pattern}*' }} | Select-Object -First 1).AppID"
+    code, output = run_powershell(cmd, timeout=15)
+    if code != 0 or not output:
+        return ""
+    pfn = (output or "").strip().splitlines()[0] if output else ""
+    return pfn.strip()
+
+
 @app.post("/api/open/<int:app_id>")
 def open_app(app_id: int):
     app_config = store.get_app(app_id)
@@ -203,17 +226,21 @@ def open_app(app_id: int):
     launch_cmd = launch_override or app_config.get("launch") or app_config.get("name")
     if not launch_cmd:
         return jsonify({"error": "No hay comando de apertura definido."}), 400
-    # Si es ruta a .exe existente, usa -FilePath
-    if os.path.isfile(launch_cmd):
-        code, output = run_powershell(f'Start-Process -FilePath "{launch_cmd}"')
-        if code == 0:
-            return jsonify({"status": "ok", "exit_code": code, "output": output, "launch": launch_cmd})
-    else:
-        code, output = run_powershell(f'Start-Process "{launch_cmd}"')
-        if code == 0:
-            return jsonify({"status": "ok", "exit_code": code, "output": output, "launch": launch_cmd})
 
-    # Fallback para apps MS Store / StartMenu
+    candidate = launch_cmd.strip().strip('"')
+    if os.path.isfile(candidate):
+        workdir = os.path.dirname(candidate)
+        ps_cmd = f'Start-Process -FilePath "{candidate}"'
+        if workdir:
+            ps_cmd += f' -WorkingDirectory "{workdir}"'
+        code, output = run_powershell(ps_cmd)
+        if code == 0:
+            return jsonify({"status": "ok", "exit_code": code, "output": output, "launch": candidate})
+
+    code, output = run_powershell(f'Start-Process "{launch_cmd}"')
+    if code == 0:
+        return jsonify({"status": "ok", "exit_code": code, "output": output, "launch": launch_cmd})
+
     pfn = app_config.get("pfn") or find_appx_pfn(app_config.get("name", ""))
     if pfn:
         fallback_cmd = f'Start-Process "explorer.exe" "shell:AppsFolder\\{pfn}"'
@@ -231,32 +258,12 @@ def open_app(app_id: int):
     return jsonify({"status": "error", "exit_code": code, "output": output})
 
 
-@app.patch("/api/apps/<int:app_id>")
-def update_app(app_id: int):
-    app_config = store.get_app(app_id)
-    if not app_config:
-        return jsonify({"error": "Aplicacion no encontrada."}), 404
-    payload = request.get_json(force=True, silent=True) or {}
-    updated = store.update_app(
-        app_id,
-        command=payload.get("command"),
-        launch=payload.get("launch"),
-        homepage=payload.get("homepage"),
-        download=payload.get("download"),
-        icon=payload.get("icon"),
-    )
-    if not updated:
-        return jsonify({"error": "No se pudo actualizar"}), 400
-    return jsonify(updated)
-
-
 def sse(event: str, data: dict) -> str:
     payload = json.dumps(data, ensure_ascii=False)
     return f"event: {event}\ndata: {payload}\n\n"
 
 
 def run_powershell(command: str, timeout: int = 900) -> Tuple[int, str]:
-    """Execute a PowerShell command and return exit code and combined output."""
     ps_command = build_ps_command(command)
     completed = subprocess.run(
         ps_command,
@@ -293,6 +300,7 @@ def add_app():
     icon = (payload.get("icon") or "").strip()
     homepage = (payload.get("homepage") or "").strip()
     download = (payload.get("download") or "").strip()
+    pfn = (payload.get("pfn") or "").strip()
 
     if not name or not command:
         return jsonify({"error": "Se requieren 'name' y 'command'."}), 400
@@ -306,8 +314,29 @@ def add_app():
         icon=icon,
         homepage=homepage,
         download=download,
+        pfn=pfn,
     )
     return jsonify(new_app), 201
+
+
+@app.patch("/api/apps/<int:app_id>")
+def update_app(app_id: int):
+    app_config = store.get_app(app_id)
+    if not app_config:
+        return jsonify({"error": "Aplicacion no encontrada."}), 404
+    payload = request.get_json(force=True, silent=True) or {}
+    updated = store.update_app(
+        app_id,
+        command=payload.get("command"),
+        launch=payload.get("launch"),
+        homepage=payload.get("homepage"),
+        download=payload.get("download"),
+        icon=payload.get("icon"),
+        pfn=payload.get("pfn"),
+    )
+    if not updated:
+        return jsonify({"error": "No se pudo actualizar"}), 400
+    return jsonify(updated)
 
 
 @app.get("/api/install/<int:app_id>/stream")
