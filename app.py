@@ -92,6 +92,7 @@ def _detect_source(app_config: dict) -> str:
 
 
 def check_app_installed(app_config: dict) -> bool:
+    """Detector completo: intenta exe, pfn y luego winget (más lento)."""
     launch_path = _clean_launch(app_config.get("launch"))
     pfn = (app_config.get("pfn") or "").strip()
 
@@ -100,7 +101,7 @@ def check_app_installed(app_config: dict) -> bool:
 
     if pfn:
         code_pfn, out_pfn = run_powershell(
-            f"Get-AppxPackage -Name '{pfn}'", timeout=12
+            f"Get-AppxPackage -Name '{pfn}'", timeout=8
         )
         if code_pfn == 0 and "PackageFamilyName" in out_pfn:
             return True
@@ -110,11 +111,26 @@ def check_app_installed(app_config: dict) -> bool:
         return False
     code, output = run_powershell(
         f"winget list --id {pkg_id} --exact {_detect_source(app_config)}".strip(),
-        timeout=15,
+        timeout=12,
     )
     if code != 0:
         return False
     return bool(re.search(r"\b[0-9][0-9A-Za-z\.\-\+]+", output))
+
+
+def check_app_installed_fast(app_config: dict) -> bool:
+    """Detector rápido solo con exe y pfn (sin winget) para refrescos de UI."""
+    launch_path = _clean_launch(app_config.get("launch"))
+    if launch_path and os.path.isfile(launch_path):
+        return True
+    pfn = (app_config.get("pfn") or "").strip()
+    if pfn:
+        code_pfn, out_pfn = run_powershell(
+            f"Get-AppxPackage -Name '{pfn}'", timeout=5
+        )
+        if code_pfn == 0 and "PackageFamilyName" in out_pfn:
+            return True
+    return False
 
 
 def get_versions(app_config: dict) -> Dict[str, str]:
@@ -385,7 +401,10 @@ def check_installations():
     apps = store.list_apps()
     results = []
     for app_cfg in apps:
-        installed = check_app_installed(app_cfg)
+        # Para la UI usamos la detección rápida (exe/pfn). Winget se usa solo si no hay info.
+        installed = check_app_installed_fast(app_cfg)
+        if not installed:
+            installed = check_app_installed(app_cfg)
         store.mark_installed(app_cfg["id"], installed)
         results.append(
             {
