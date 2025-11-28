@@ -80,6 +80,10 @@ def extract_package_id(command: str) -> str:
     return match.group(1) if match else ""
 
 
+def _clean_launch(value: str) -> str:
+    return (value or "").strip().strip('"')
+
+
 def _detect_source(app_config: dict) -> str:
     cmd = app_config.get("command", "").lower()
     if "--source msstore" in cmd:
@@ -88,15 +92,25 @@ def _detect_source(app_config: dict) -> str:
 
 
 def check_app_installed(app_config: dict) -> bool:
-    launch_path = (app_config.get("launch") or "").strip().strip('"')
+    launch_path = _clean_launch(app_config.get("launch"))
+    pfn = (app_config.get("pfn") or "").strip()
+
     if launch_path and os.path.isfile(launch_path):
         return True
+
+    if pfn:
+        code_pfn, out_pfn = run_powershell(
+            f"Get-AppxPackage -Name '{pfn}'", timeout=12
+        )
+        if code_pfn == 0 and "PackageFamilyName" in out_pfn:
+            return True
+
     pkg_id = extract_package_id(app_config.get("command", ""))
     if not pkg_id:
         return False
     code, output = run_powershell(
         f"winget list --id {pkg_id} --exact {_detect_source(app_config)}".strip(),
-        timeout=30,
+        timeout=15,
     )
     if code != 0:
         return False
@@ -108,7 +122,8 @@ def get_versions(app_config: dict) -> Dict[str, str]:
     source = _detect_source(app_config)
     current = "desconocida"
     latest = "desconocida"
-    launch_path = (app_config.get("launch") or "").strip().strip('"')
+    launch_path = _clean_launch(app_config.get("launch"))
+    pfn = (app_config.get("pfn") or "").strip()
 
     if launch_path and os.path.isfile(launch_path):
         code_file, out_file = run_powershell(
@@ -117,22 +132,36 @@ def get_versions(app_config: dict) -> Dict[str, str]:
         if code_file == 0 and out_file.strip():
             current = out_file.strip().splitlines()[0]
 
-    code_list, out_list = run_powershell(
-        f"winget list --id {pkg_id} --exact {source}".strip(), timeout=30
-    )
-    out_clean = out_list.replace("\r", "")
-    m_inst = re.search(rf"(?im)^\s*.*?\s{re.escape(pkg_id)}\s+([0-9][0-9A-Za-z\.\-\+]+)", out_clean)
-    if not m_inst:
-        m_inst = re.search(r"(?im)\b([0-9][0-9A-Za-z\.\-\+]+)\b", out_clean)
-    if m_inst and code_list == 0 and current == "desconocida":
-        current = m_inst.group(1)
+    # Para apps MS Store sin winget id, intenta pfn
+    if current == "desconocida" and pfn:
+        code_appx, out_appx = run_powershell(
+            f"(Get-AppxPackage -Name '{pfn}').Version", timeout=8
+        )
+        if code_appx == 0 and out_appx.strip():
+            current = out_appx.strip().splitlines()[0]
 
-    code_show, out_show = run_powershell(
-        f"winget show --id {pkg_id} --exact {source}".strip(), timeout=30
-    )
-    m_show = re.search(r"(?i)Version:\s*([0-9a-zA-Z\.\-\+]+)", out_show)
-    if m_show:
-        latest = m_show.group(1)
+    try:
+        code_list, out_list = run_powershell(
+            f"winget list --id {pkg_id} --exact {source}".strip(), timeout=20
+        )
+        out_clean = out_list.replace("\r", "")
+        m_inst = re.search(rf"(?im)^\s*.*?\s{re.escape(pkg_id)}\s+([0-9][0-9A-Za-z\.\-\+]+)", out_clean)
+        if not m_inst:
+            m_inst = re.search(r"(?im)\b([0-9][0-9A-Za-z\.\-\+]+)\b", out_clean)
+        if m_inst and code_list == 0 and current == "desconocida":
+            current = m_inst.group(1)
+    except Exception:
+        pass
+
+    try:
+        code_show, out_show = run_powershell(
+            f"winget show --id {pkg_id} --exact {source}".strip(), timeout=20
+        )
+        m_show = re.search(r"(?i)Version:\s*([0-9a-zA-Z\.\-\+]+)", out_show)
+        if m_show:
+            latest = m_show.group(1)
+    except Exception:
+        pass
 
     def parse_v(v: str) -> Tuple:
         return tuple(int(x) for x in re.split(r"[^\d]", v) if x.isdigit())
