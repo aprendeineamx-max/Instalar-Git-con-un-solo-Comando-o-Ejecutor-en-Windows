@@ -14,6 +14,7 @@ const appsGrid = document.getElementById("appsGrid");
 const searchInput = document.getElementById("search");
 const categoryFilter = document.getElementById("categoryFilter");
 const addForm = document.getElementById("addForm");
+const refreshBtn = document.getElementById("refresh");
 const logList = document.getElementById("logList");
 const navLinks = document.querySelectorAll(".nav-link");
 
@@ -47,8 +48,13 @@ async function fetchApps() {
 }
 
 async function refreshAll() {
-  await fetchApps();
-  await checkInstallations();
+  setRefreshing(true);
+  try {
+    await fetchApps();
+    await checkInstallations();
+  } finally {
+    setRefreshing(false);
+  }
 }
 
 function renderCards() {
@@ -146,7 +152,9 @@ function renderCards() {
           state.state === "done"
             ? `<button class="btn ghost" data-open="${app.id}" ${
                 openingSet.has(app.id) ? "disabled" : ""
-              }>${openingSet.has(app.id) ? "Abriendo..." : "Abrir"}</button>`
+              }>${
+                openingSet.has(app.id) ? "⏳ Abriendo..." : "Abrir ▶"
+              }</button>`
             : ""
         }
         ${
@@ -352,6 +360,12 @@ async function checkInstallations() {
     console.error(err);
     showToast("No se pudo verificar instalaciones");
   }
+}
+
+function setRefreshing(flag) {
+  if (!refreshBtn) return;
+  refreshBtn.disabled = flag;
+  refreshBtn.textContent = flag ? "⏳ Sincronizando..." : "Refrescar apps";
 }
 
 function updateCategories() {

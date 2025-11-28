@@ -88,101 +88,48 @@ def _detect_source(app_config: dict) -> str:
 
 
 def check_app_installed(app_config: dict) -> bool:
-    pkg_id = extract_package_id(app_config.get("command", ""))
-    name = app_config.get("name", "").strip()
     launch_path = (app_config.get("launch") or "").strip().strip('"')
     if launch_path and os.path.isfile(launch_path):
         return True
-    if not pkg_id and not name:
+    pkg_id = extract_package_id(app_config.get("command", ""))
+    if not pkg_id:
         return False
-
-    not_installed_signals = [
-        "no se encuentra ningun paquete instalado",
-        "no se encuentra ningún paquete instalado",
-        "no se encuentra ningun paquete instalado que coincida con los criterios de entrada",
-        "no se encuentra ningún paquete instalado que coincida con los criterios de entrada",
-        "no installed package found",
-        "no installed package found matching input criteria",
-        "no packages found",
-        "no package found",
-        "no se encontró el paquete",
-    ]
-
-    def matches(norm_text: str) -> bool:
-        base = pkg_id.lower()
-        alt = f"{base}.exe" if not base.endswith(".exe") else base
-        name_l = name.lower()
-        base_nodots = base.replace(".", "")
-        name_clean = re.sub(r"[^a-z0-9]", "", name_l)
-        keywords = {
-            base,
-            alt,
-            base_nodots,
-            name_l,
-            name_clean,
-        }
-        if "chrome" in base or "chrome" in name_l:
-            keywords.update({"google chrome", "chrome", "chromedev"})
-        if "chatgpt" in base or "chatgpt" in name_l:
-            keywords.update(
-                {
-                    "chatgpt",
-                    "openai.chatgpt",
-                    "chatgptdesktop",
-                    "chatgpt-desktop",
-                    "openai.chatgpt-desktop",
-                }
-            )
-        return is_already_installed(norm_text) or any(
-            kw for kw in keywords if kw and kw in norm_text
-        )
-
-    source = _detect_source(app_config)
-    search_terms = []
-    if pkg_id:
-        search_terms.append(f"winget list --id {pkg_id} --exact {source}".strip())
-    if name:
-        search_terms.append(f'winget list "{name}" {source}'.strip())
-    if "chatgpt" in name.lower() and f'winget list "ChatGPT"' not in search_terms:
-        search_terms.append(f'winget list "ChatGPT" {source}'.strip())
-
-    for cmd in search_terms:
-        code, output = run_powershell(cmd, timeout=120)
-        norm = output.lower()
-        if matches(norm):
-            if re.search(r"\b[0-9][0-9a-zA-Z\.\-\+]+\b", output):
-                return True
-        if any(sig in norm for sig in not_installed_signals):
-            continue
-    return False
+    code, output = run_powershell(
+        f"winget list --id {pkg_id} --exact {_detect_source(app_config)}".strip(),
+        timeout=30,
+    )
+    if code != 0:
+        return False
+    return bool(re.search(r"\b[0-9][0-9A-Za-z\.\-\+]+", output))
 
 
 def get_versions(app_config: dict) -> Dict[str, str]:
-    """Return current and latest version via winget."""
     pkg_id = extract_package_id(app_config.get("command", "")) or app_config.get("name", "")
     source = _detect_source(app_config)
     current = "desconocida"
     latest = "desconocida"
     launch_path = (app_config.get("launch") or "").strip().strip('"')
 
-    # File version if launch path exists
     if launch_path and os.path.isfile(launch_path):
         code_file, out_file = run_powershell(
             f"(Get-Item '{launch_path}').VersionInfo.ProductVersion"
         )
         if code_file == 0 and out_file.strip():
             current = out_file.strip().splitlines()[0]
-    # Installed version
-    code_list, out_list = run_powershell(f"winget list --id {pkg_id} --exact {source}".strip())
+
+    code_list, out_list = run_powershell(
+        f"winget list --id {pkg_id} --exact {source}".strip(), timeout=30
+    )
     out_clean = out_list.replace("\r", "")
     m_inst = re.search(rf"(?im)^\s*.*?\s{re.escape(pkg_id)}\s+([0-9][0-9A-Za-z\.\-\+]+)", out_clean)
     if not m_inst:
         m_inst = re.search(r"(?im)\b([0-9][0-9A-Za-z\.\-\+]+)\b", out_clean)
-    if m_inst and code_list == 0:
+    if m_inst and code_list == 0 and current == "desconocida":
         current = m_inst.group(1)
 
-    # Latest version
-    code_show, out_show = run_powershell(f"winget show --id {pkg_id} --exact {source}".strip())
+    code_show, out_show = run_powershell(
+        f"winget show --id {pkg_id} --exact {source}".strip(), timeout=30
+    )
     m_show = re.search(r"(?i)Version:\s*([0-9a-zA-Z\.\-\+]+)", out_show)
     if m_show:
         latest = m_show.group(1)
@@ -202,18 +149,6 @@ def get_versions(app_config: dict) -> Dict[str, str]:
         "latest_version": latest,
         "update_available": update_available,
     }
-
-
-def find_appx_pfn(app_name: str) -> str:
-    pattern = re.sub(r"[^A-Za-z0-9]", "", app_name)
-    if not pattern:
-        return ""
-    cmd = f"(Get-StartApps | Where-Object {{ $_.Name -like '*{pattern}*' }} | Select-Object -First 1).AppID"
-    code, output = run_powershell(cmd, timeout=15)
-    if code != 0 or not output:
-        return ""
-    pfn = (output or "").strip().splitlines()[0] if output else ""
-    return pfn.strip()
 
 
 @app.post("/api/open/<int:app_id>")
@@ -240,20 +175,6 @@ def open_app(app_id: int):
     code, output = run_powershell(f'Start-Process "{launch_cmd}"')
     if code == 0:
         return jsonify({"status": "ok", "exit_code": code, "output": output, "launch": launch_cmd})
-
-    pfn = app_config.get("pfn") or find_appx_pfn(app_config.get("name", ""))
-    if pfn:
-        fallback_cmd = f'Start-Process "explorer.exe" "shell:AppsFolder\\{pfn}"'
-        code2, output2 = run_powershell(fallback_cmd)
-        status = "ok" if code2 == 0 else "error"
-        return jsonify(
-            {
-                "status": status,
-                "exit_code": code2,
-                "output": output2 or output,
-                "pfn": pfn,
-            }
-        )
 
     return jsonify({"status": "error", "exit_code": code, "output": output})
 
